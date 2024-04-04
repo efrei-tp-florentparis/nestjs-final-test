@@ -1,8 +1,10 @@
 import { Injectable, NotImplementedException } from '@nestjs/common';
+import { User } from '@prisma/client';
+import { PrismaService } from 'src/infrastructure/database/prisma.service';
 
 @Injectable()
 export class UserService {
-    constructor() {}
+    constructor(private readonly prisma: PrismaService) {}
 
     addUser(email: string): Promise<void> {
         throw new NotImplementedException();
@@ -14,5 +16,9 @@ export class UserService {
 
     resetData(): Promise<void> {
         throw new NotImplementedException();
+    }
+
+    async getAllUsers(): Promise<User[]> {
+        return this.prisma.getPrismaClient().user.findMany();
     }
 }
