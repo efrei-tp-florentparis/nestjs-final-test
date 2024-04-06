@@ -6,8 +6,12 @@ import { PrismaService } from 'src/infrastructure/database/prisma.service';
 export class UserService {
     constructor(private readonly prisma: PrismaService) {}
 
-    addUser(email: string): Promise<void> {
-        throw new NotImplementedException();
+    async addUser(email: string): Promise<void> {
+        await this.prisma.getPrismaClient().user.create({
+            data: {
+                email: email,
+            },
+        });
     }
 
     getUser(email: string): Promise<unknown> {
