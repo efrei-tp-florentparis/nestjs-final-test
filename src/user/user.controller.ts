@@ -1,6 +1,9 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from '@prisma/client';
+import { ApiTags } from '@nestjs/swagger';
+
+@ApiTags('user')
 @Controller()
 export class UserController {
     constructor(private readonly userService: UserService) {}
