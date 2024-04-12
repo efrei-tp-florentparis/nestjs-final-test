@@ -1,6 +1,10 @@
-import { Injectable, NotImplementedException } from '@nestjs/common';
+import {
+    Injectable,
+    NotFoundException,
+    NotImplementedException,
+} from '@nestjs/common';
 import { User } from '@prisma/client';
-import { PrismaService } from 'src/infrastructure/database/prisma.service';
+import { PrismaService } from '../infrastructure/database/prisma.service';
 
 @Injectable()
 export class UserService {
@@ -14,12 +18,29 @@ export class UserService {
         });
     }
 
-    getUser(email: string): Promise<unknown> {
-        throw new NotImplementedException();
+    async getUser(email: string): Promise<User> {
+        const user = await this.prisma.getPrismaClient().user.findUnique({
+            where: {
+                email,
+            },
+        });
+        if (!user) {
+            throw new NotFoundException(`User with email ${email} not found`);
+        }
+        return user;
     }
 
-    resetData(): Promise<void> {
-        throw new NotImplementedException();
+    async resetData(): Promise<void> {
+        await this.prisma.getPrismaClient().user.deleteMany({});
+    }
+
+    async isEmailUnique(email: string): Promise<boolean> {
+        const user = await this.prisma.getPrismaClient().user.findUnique({
+            where: {
+                email,
+            },
+        });
+        return !user;
     }
 
     async getAllUsers(): Promise<User[]> {
