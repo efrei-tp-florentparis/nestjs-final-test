@@ -4,8 +4,7 @@ import {
     ConflictException,
     Controller,
     Get,
-    HttpException,
-    HttpStatus,
+    NotFoundException,
     Param,
     Post,
 } from '@nestjs/common';
@@ -46,6 +45,10 @@ export class UserController {
 
     @Get('/:email')
     async getUser(@Param('email') email: string): Promise<User> {
-        return this.userService.getUser(email);
+        const user = this.userService.getUser(email);
+        if (!user) {
+            throw new NotFoundException(`User with email ${email} not found`);
+        }
+        return user;
     }
 }
