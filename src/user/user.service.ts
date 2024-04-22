@@ -23,10 +23,6 @@ export class UserService {
         return user;
     }
 
-    async resetData(): Promise<void> {
-        await this.prisma.getPrismaClient().user.deleteMany({});
-    }
-
     async isEmailUnique(email: string): Promise<boolean> {
         const user = await this.prisma.getPrismaClient().user.findUnique({
             where: {
@@ -36,7 +32,20 @@ export class UserService {
         return !user;
     }
 
+    async getUserById(userId: number): Promise<boolean> {
+        const user = await this.prisma.getPrismaClient().user.findUnique({
+            where: {
+                id: userId,
+            },
+        });
+        return !user;
+    }
+
     async getAllUsers(): Promise<User[]> {
         return this.prisma.getPrismaClient().user.findMany();
+    }
+
+    async resetData(): Promise<void> {
+        await this.prisma.getPrismaClient().user.deleteMany({});
     }
 }

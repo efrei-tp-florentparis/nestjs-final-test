@@ -12,12 +12,11 @@ datasource db {
 model User {
   id    Int    @id @default(autoincrement())
   email String @unique
-  name  String?
 }
 
 model Task {
   id       Int     @id @default(autoincrement())
   userId   Int
-  name     String
+  name     String @unique
   priority Int?
 }
