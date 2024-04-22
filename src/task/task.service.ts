@@ -1,10 +1,18 @@
-import { Injectable, NotImplementedException } from '@nestjs/common';
-import { PrismaService } from '../infrastructure/database/prisma.service';
+import {
+    Injectable,
+    NotFoundException,
+    NotImplementedException,
+} from '@nestjs/common';
 import { Task } from '@prisma/client';
+import { PrismaService } from '../infrastructure/database/prisma.service';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class TaskService {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly userService: UserService,
+    ) {}
 
     async nameIsUnique(name: string): Promise<boolean> {
         const existingTask = await this.prisma
@@ -23,9 +31,9 @@ export class TaskService {
             throw new Error('Le nom de la tâche doit être unique.');
         }
 
-        if (typeof priority === 'string') {
-            // Convertit la priorité en entier
-            priority = parseInt(priority, 10);
+        const isUserNotExist = await this.userService.getUserById(userId);
+        if (isUserNotExist) {
+            throw new NotFoundException(`User with id ${userId} doesn't exist`);
         }
 
         await this.prisma.getPrismaClient().task.create({

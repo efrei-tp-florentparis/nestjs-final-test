@@ -28,13 +28,6 @@ export class UserController {
             throw new BadRequestException(`Email ${email} is not valid`);
         }
 
-        const isEmailUnique = await this.userService.isEmailUnique(email);
-        if (!isEmailUnique) {
-            throw new ConflictException(
-                `User with email ${email} already exists`,
-            );
-        }
-
         return this.userService.addUser(email);
     }
 

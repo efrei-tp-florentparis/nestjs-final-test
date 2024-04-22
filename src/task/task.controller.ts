@@ -3,7 +3,6 @@ import {
     Body,
     Controller,
     Get,
-    NotFoundException,
     Post,
 } from '@nestjs/common';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
@@ -54,12 +53,7 @@ export class TaskController {
             }
         }
 
-        const isUserNotExist = await this.userService.getUserById(userId);
-        if (isUserNotExist) {
-            throw new NotFoundException(`User with id ${userId} doesn't exist`);
-        }
-
-        return this.taskService.addTask(name, userId, priority);
+        return this.taskService.addTask(name, userId, parsedPriority);
     }
 
     @Get('/list')
