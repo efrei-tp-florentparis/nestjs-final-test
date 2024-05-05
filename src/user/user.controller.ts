@@ -4,7 +4,6 @@ import {
     ConflictException,
     Controller,
     Get,
-    NotFoundException,
     Param,
     Post,
 } from '@nestjs/common';
@@ -36,11 +35,39 @@ export class UserController {
         return this.userService.getAllUsers();
     }
 
-    @Get('/:email')
+    /* @Get('/:email')
     async getUser(@Param('email') email: string): Promise<User> {
         const user = this.userService.getUser(email);
         if (!user) {
             throw new NotFoundException(`User with email ${email} not found`);
+        }
+        return user;
+    } */
+
+    @Get('/:userId')
+    async getUserById(@Param('userId') userId: number): Promise<User> {
+        if (!userId) {
+            throw new BadRequestException(`Name or userId is required`);
+        }
+
+        let parsedId: number | undefined;
+
+        if (userId !== undefined) {
+            if (typeof userId === 'string') {
+                parsedId = parseInt(userId, 10);
+                if (isNaN(parsedId)) {
+                    throw new BadRequestException(
+                        `userId must be a valid integer`,
+                    );
+                }
+            } else if (!Number.isInteger(userId)) {
+                throw new BadRequestException(`userId must be a valid integer`);
+            }
+        }
+
+        const user = await this.userService.getUserById(parsedId);
+        if (!user) {
+            throw new BadRequestException(`User with id ${parsedId} not found`);
         }
         return user;
     }

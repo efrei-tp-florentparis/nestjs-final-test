@@ -39,13 +39,13 @@ export class UserService {
         return !user;
     }
 
-    async getUserById(userId: number): Promise<boolean> {
+    async getUserById(userId: number): Promise<User> {
         const user = await this.prisma.getPrismaClient().user.findUnique({
             where: {
                 id: userId,
             },
         });
-        return !user;
+        return user;
     }
 
     async getAllUsers(): Promise<User[]> {

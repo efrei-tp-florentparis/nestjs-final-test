@@ -1,8 +1,4 @@
-import {
-    Injectable,
-    NotFoundException,
-    NotImplementedException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { Task } from '@prisma/client';
 import { PrismaService } from '../infrastructure/database/prisma.service';
 import { UserService } from '../user/user.service';
@@ -26,20 +22,17 @@ export class TaskService {
         userId: number,
         priority: number,
     ): Promise<void> {
-        const isUnique = await this.nameIsUnique(name);
-        if (!isUnique) {
-            throw new Error('Le nom de la tâche doit être unique.');
-        }
-
-        const isUserNotExist = await this.userService.getUserById(userId);
-        if (isUserNotExist) {
-            throw new NotFoundException(`User with id ${userId} doesn't exist`);
+        const user = await this.userService.getUserById(userId);
+        if (!user) {
+            throw new BadRequestException(
+                `User with id ${userId} doesn't exist`,
+            );
         }
 
         await this.prisma.getPrismaClient().task.create({
             data: {
                 name: name,
-                userId: userId,
+                userId: user.id,
                 priority: priority,
             },
         });
@@ -54,8 +47,19 @@ export class TaskService {
         return task;
     }
 
-    getUserTasks(userId: string): Promise<unknown[]> {
-        throw new NotImplementedException();
+    async getUserTasks(userId: number): Promise<Task[]> {
+        const user = await this.userService.getUserById(userId);
+        if (!user) {
+            throw new BadRequestException(
+                `User with id ${userId} doesn't exist`,
+            );
+        }
+
+        return await this.prisma.getPrismaClient().task.findMany({
+            where: {
+                userId: userId,
+            },
+        });
     }
 
     async getAllTasks(): Promise<Task[]> {
