@@ -9,17 +9,12 @@ import {
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { CreateTaskDto } from './task.dto';
 import { TaskService } from './task.service';
-import { UserService } from '../user/user.service';
 import { Task } from '@prisma/client';
-import { parse } from 'path';
 
 @ApiTags('task')
 @Controller()
 export class TaskController {
-    constructor(
-        private readonly taskService: TaskService,
-        private readonly userService: UserService,
-    ) {}
+    constructor(private readonly taskService: TaskService) {}
 
     @Post()
     @ApiBody({ type: CreateTaskDto })
@@ -59,27 +54,18 @@ export class TaskController {
     }
 
     @Get('/user/:userId')
-    async getUserTasks(@Param('userId') userId: number): Promise<Task[]> {
-        if (!userId) {
-            throw new BadRequestException(`Name or userId is required`);
+    async getUserTasks(@Param('userId') userId: string): Promise<Task[]> {
+        if (
+            !userId ||
+            !Number.isInteger(parseInt(userId, 10)) ||
+            parseInt(userId, 10) < 0
+        ) {
+            throw new BadRequestException(`userId must be a valid integer`);
         }
 
-        let parsedId: number | undefined;
+        const parsedUserId = parseInt(userId, 10);
 
-        if (userId !== undefined) {
-            if (typeof userId === 'string') {
-                parsedId = parseInt(userId, 10);
-                if (isNaN(parsedId)) {
-                    throw new BadRequestException(
-                        `userId must be a valid integer`,
-                    );
-                }
-            } else if (!Number.isInteger(userId)) {
-                throw new BadRequestException(`userId must be a valid integer`);
-            }
-        }
-
-        return this.taskService.getUserTasks(parsedId);
+        return this.taskService.getUserTasks(parsedUserId);
     }
 
     @Get('/list')
